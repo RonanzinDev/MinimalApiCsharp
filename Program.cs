@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -31,11 +33,43 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseAuthorization();
 app.MapGet("/", () => "Hello World!");
+app.MapPost("/login", (UserLogin user, IUserService service) => Login(user, service));
 app.MapPost("/create", (Movie movie, IMovieService service) => Create(movie, service));
 app.MapGet("/get", (int id, IMovieService service) => Get(id, service));
 app.MapGet("/list", (IMovieService service) => ListMovies(service));
 app.MapPut("/update", (Movie newMovie, IMovieService service) => Update(newMovie, service));
 app.MapDelete("/delete", (int id, IMovieService service) => Delete(id, service));
+
+IResult Login(UserLogin user, IUserService service)
+{
+    if (!string.IsNullOrEmpty(user.Username) && !string.IsNullOrEmpty(user.Password))
+    {
+        var loggedInuser = service.Get(user);
+        if (loggedInuser is null) return Results.NotFound("User not found");
+
+        var claims = new[] {
+            new Claim(ClaimTypes.NameIdentifier, loggedInuser.Username),
+            new Claim(ClaimTypes.Email, loggedInuser.EmailAddress),
+            new Claim(ClaimTypes.GivenName, loggedInuser.GivenName),
+            new Claim(ClaimTypes.Surname, loggedInuser.Surname),
+            new Claim(ClaimTypes.Role, loggedInuser.Role)
+        };
+        var token = new JwtSecurityToken(
+             issuer: builder.Configuration["Jwt:Issuer"],
+             audience: builder.Configuration["Jwt:Audience"],
+             claims: claims,
+             expires: DateTime.UtcNow.AddDays(60),
+             notBefore: DateTime.UtcNow,
+             signingCredentials: new SigningCredentials(new SymmetricSecurityKey(
+                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+             ), SecurityAlgorithms.HmacSha256)
+
+        );
+
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        return Results.Ok(tokenString);
+    }
+}
 
 IResult Create(Movie movie, IMovieService service)
 {
