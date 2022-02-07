@@ -1,4 +1,4 @@
-using MinimalJwt.Model;
+using MinimalJwt.Models;
 
 namespace MinimalJwt.Repositories;
 
@@ -11,10 +11,9 @@ public class UserRepository
             Username = "luke_admin",
             EmailAddress = "g@gmail.com",
             Password = "1234",
-            GivenName = "Luke"
-        ,
+            GivenName = "Luke",
             Surname = "Rogers",
-            Role = "Standard"
+            Role = "standard"
         },
         new()
         {
