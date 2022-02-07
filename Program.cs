@@ -2,11 +2,14 @@ using MinimalJwt.Model;
 using MinimalJwt.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSingleton<IMovieService, MovieService>();
 builder.Services.AddSingleton<IUserService, UserService>();
 
 var app = builder.Build();
+app.UseSwagger();
 
 app.MapGet("/", () => "Hello World!");
 app.MapPost("/create", (Movie movie, IMovieService service) => Create(movie, service));
@@ -44,5 +47,5 @@ IResult Delete(int id, IMovieService service)
     if (!result) Results.BadRequest("Something went wrong");
     return Results.Ok(result);
 }
-
+app.UseSwaggerUI();
 app.Run();
