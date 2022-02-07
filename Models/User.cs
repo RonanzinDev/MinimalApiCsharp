@@ -1,4 +1,4 @@
-namespace MinimalJwt.Model;
+namespace MinimalJwt.Models;
 
 public class User
 {

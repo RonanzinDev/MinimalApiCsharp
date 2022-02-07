@@ -1,4 +1,4 @@
-using MinimalJwt.Model;
+using MinimalJwt.Models;
 using MinimalJwt.Repositories;
 
 namespace MinimalJwt.Services;
